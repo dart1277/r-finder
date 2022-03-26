@@ -1,3 +1,8 @@
+routes.csv
+.idea
+*.iml
+target/
+
 # Compiled class file
 *.class
 
