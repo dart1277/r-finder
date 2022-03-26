@@ -14,11 +14,11 @@ import java.util.List;
 @NoArgsConstructor
 public class RouteMetaData {
 
-    private String id;
+    private String shipId;
     private Long fromSeq;
     private Long toSeq;
-    private String fromPort;
-    private String toPort;
+    private PortCode fromPort;
+    private PortCode toPort;
     private Long legDuration;
     private Long count;
     private List<RoutePosition> positions;

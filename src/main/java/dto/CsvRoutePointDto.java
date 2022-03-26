@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import util.math.NumberConversionUtil;
+import util.math.RouteFinderConstants;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class CsvRoutePointDto {
     private double lat;
     private long timestamp;
     private double speed;
+    private double positionAccuracy;
 
 
     public static CsvRoutePointDto map(List<Double> array) {
@@ -24,10 +26,10 @@ public class CsvRoutePointDto {
         double lat = NumberConversionUtil.mapDouble(array, 1);
         long timestamp = NumberConversionUtil.mapDouble(array, 2).longValue();
         double speed = NumberConversionUtil.mapDouble(array, 3);
-        return new CsvRoutePointDto(lon, lat, timestamp, speed);
+        return new CsvRoutePointDto(lon, lat, timestamp, speed, RouteFinderConstants.ROUTE_ACCURACY);
     }
 
-    public RoutePosition toRoutePosition() {
-        return new RoutePosition(lon, lat, timestamp);
+    public RoutePosition toRoutePosition(double accuracy) {
+        return new RoutePosition(lon, lat, timestamp, accuracy);
     }
 }

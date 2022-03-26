@@ -16,7 +16,7 @@ public class JsonProcessor<U> extends CellProcessorAdaptor implements StringCell
 
     private final Function<List<Double>, U> mapper;
 
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
 
     @Override
