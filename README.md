@@ -32,8 +32,8 @@ produced using the data set provided
 
 #### Here are example routes found by the program:
 
-+ Hamburg to Bremerhaven in ~ 8.23h
++ Hamburg to Bremerhaven in ~ 8.08h
 ![Hamburg to Bremerhaven](https://raw.githubusercontent.com/dart1277/r-finder/main/program_output/Hamburg_to_Bremerhaven_8.23h.png "Hamburg to Bremerhaven")
 
-+ Bremerhaven to Hamburg int ~ 11.48h
++ Bremerhaven to Hamburg int ~ 8.18h
 ![Bremerhaven to Hamburg](https://raw.githubusercontent.com/dart1277/r-finder/main/program_output/Bremerhaven_to_Hamburg_11.48h.png "Bremerhaven to Hamburg")
