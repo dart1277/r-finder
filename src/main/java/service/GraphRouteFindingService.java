@@ -52,7 +52,7 @@ public class GraphRouteFindingService {
 
             double pathTime = path.getEdgeList().stream()
                     .filter(routeWeightedEdgePositionNonNullPredicate)
-                    .map(RouteWeightedEdge::getEdgeDurationSum)
+                    .map(edge -> edge.getEdgeDurationSum() * 1d / edge.getSampleCount())
                     .mapToDouble(x -> x)
                     .sum();
             final double millisInHour = 3600000d;
