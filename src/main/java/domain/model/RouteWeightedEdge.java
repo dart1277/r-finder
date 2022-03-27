@@ -9,10 +9,14 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 public class RouteWeightedEdge extends DefaultWeightedEdge {
     private RoutePosition startPosition;
     private RoutePosition endPosition;
+    private long sampleCount = 0;
+    private long edgeDurationSum = 0;
+    private double edgeDurationReciprocalSum = 0d;
 
-    public void setPositions(RoutePosition startPosition, RoutePosition endPosition) {
-        this.startPosition = startPosition;
-        this.endPosition = endPosition;
+    public double computeInitialWeight(RoutePosition initialStartPosition, RoutePosition initialEndPosition) {
+        this.startPosition = initialStartPosition;
+        this.endPosition = initialEndPosition;
+        return computeWeight(initialStartPosition, initialEndPosition);
     }
 
     @Override
@@ -28,5 +32,13 @@ public class RouteWeightedEdge extends DefaultWeightedEdge {
     @Override
     public double getWeight() {
         return super.getWeight();
+    }
+
+    public double computeWeight(RoutePosition startPos, RoutePosition endPos) {
+        ++sampleCount;
+        long durationInMillis = startPos.getDurationInMillis(endPos);
+        edgeDurationSum += durationInMillis;
+        edgeDurationReciprocalSum += 1d / durationInMillis;
+        return edgeDurationReciprocalSum / sampleCount;
     }
 }

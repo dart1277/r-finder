@@ -1,56 +1,66 @@
 package service;
 
-import domain.model.PortCode;
 import domain.model.RouteMetaData;
 import domain.model.RoutePosition;
 import domain.model.RouteWeightedEdge;
 import domain.service.GraphBuildingService;
 import domain.service.GraphPathFindingService;
 import domain.service.NodeClusterFindingService;
-import dto.CsvRouteDto;
-import dto.RouteMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
-import util.csv.CsvReaderUtil;
 import util.math.RouteFinderConstants;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
 public class GraphRouteFindingService {
 
-    public static void findRoute(String fileName, double positionAccuracy) {
-        List<CsvRouteDto> routeDtos = CsvReaderUtil.readFile(fileName, CsvRouteDto.class);
-        List<RouteMetaData> routeMetaDataList = RouteMapper.INSTANCE.toDomainWithAccuracy(routeDtos, positionAccuracy);
-        Map<Boolean, List<RouteMetaData>> routePositionsFromBremerhavenToHamburgPartitionMap = routeMetaDataList.stream()
-                .collect(Collectors.partitioningBy(routeMetaData -> routeMetaData.getFromPort() == PortCode.DEBRV));
+    public static void findRoute(Map<Boolean, List<RouteMetaData>> routePartitionMap) {
 
         // find routes from Bremerhaven to Hamburg
         log.info("find routes from Bremerhaven to Hamburg");
-        findSrcDestRoute(routePositionsFromBremerhavenToHamburgPartitionMap.get(Boolean.TRUE));
+        GraphPath<Integer, RouteWeightedEdge> pathToHamburg = findSrcDestRoute(routePartitionMap.get(Boolean.TRUE));
+        logSolutionToConsole(pathToHamburg);
         // find return routes from Hamburg to Bremerhaven
         log.info("find return routes from Hamburg to Bremerhaven");
-        findSrcDestRoute(routePositionsFromBremerhavenToHamburgPartitionMap.get(Boolean.FALSE));
-
+        GraphPath<Integer, RouteWeightedEdge> pathToBremerhaven = findSrcDestRoute(routePartitionMap.get(Boolean.FALSE));
+        logSolutionToConsole(pathToBremerhaven);
     }
 
-    private static void findSrcDestRoute(List<RouteMetaData> routeMetaDataList) {
+    private static GraphPath<Integer, RouteWeightedEdge> findSrcDestRoute(List<RouteMetaData> routeMetaDataList) {
         int nodeCount = NodeClusterFindingService.addNodesToRoutePositions(routeMetaDataList);
         DefaultDirectedWeightedGraph<Integer, RouteWeightedEdge> weightedGraph = GraphBuildingService.buildGraph(routeMetaDataList, nodeCount);
-        GraphPath<Integer, RouteWeightedEdge> path = GraphPathFindingService
+        return GraphPathFindingService
                 .findSrcDestPath(weightedGraph, RoutePosition.FIRST_ASSIGNED_NODE_NO - 1, nodeCount + 1);
+    }
 
-        List<String> edgeStrings = path.getEdgeList().stream()
-                .filter(edge -> Objects.nonNull(edge.getStartPosition()) && Objects.nonNull(edge.getEndPosition()))
-                .flatMap(edge -> Stream.of(edge.getStartPosition().toString(), edge.getEndPosition().toString()/*, " " + edge.getSource(), " " + edge.getTarget(), " " + edge.getWeight()*/ ))
-                .collect(Collectors.toList());
-        log.info(String.format(RouteFinderConstants.GEOJSON, edgeStrings));
+    private static void logSolutionToConsole(GraphPath<Integer, RouteWeightedEdge> path) {
+        if (Objects.nonNull(path)) {
+            Predicate<RouteWeightedEdge> routeWeightedEdgePositionNonNullPredicate = edge -> Objects.nonNull(edge.getStartPosition()) && Objects.nonNull(edge.getEndPosition());
 
+            List<String> edgeStrings = path.getEdgeList().stream()
+                    .filter(routeWeightedEdgePositionNonNullPredicate)
+                    .flatMap(edge -> Stream.of(edge.getStartPosition().toString(), edge.getEndPosition().toString()/*, " " + edge.getSource(), " " + edge.getTarget(), " " + edge.getWeight()*/))
+                    .collect(Collectors.toList());
+            System.out.println(String.format(RouteFinderConstants.GEOJSON, edgeStrings));
+
+            double pathTime = path.getEdgeList().stream()
+                    .filter(routeWeightedEdgePositionNonNullPredicate)
+                    .map(RouteWeightedEdge::getEdgeDurationSum)
+                    .mapToDouble(x -> x)
+                    .sum();
+            final double millisInHour = 3600000d;
+            System.out.println(String.format("Took %f hours", pathTime / millisInHour));
+        } else {
+            log.error("No path found");
+        }
+        System.out.println("____________________________________________________________________________________________________________________________________________");
     }
 
 }

@@ -16,24 +16,21 @@ public class RoutePosition implements Comparable<RoutePosition> {
     private final double lon;
     private final double lat;
     private final long timestamp;
+    private double speed;
     private final double positionAccuracy;
     private int routeNodeNo = NO_ASSIGNED_NODE_NO;
     private RouteMetaData metaData;
 
-    public RoutePosition(double lon, double lat, long timestamp, double positionAccuracy) {
+    public RoutePosition(double lon, double lat, long timestamp, double speed, double positionAccuracy) {
         this.positionAccuracy = positionAccuracy;
         this.lon = RoundingUtil.round(lon, positionAccuracy);
         this.lat = RoundingUtil.round(lat, positionAccuracy);
         this.timestamp = timestamp;
+        this.speed = speed;
     }
 
-
-    public double getDistance(RoutePosition routePositionB) {
-        return (lon - routePositionB.getLon()) * (lon - routePositionB.getLon()) + (lat - routePositionB.getLat()) * (lat - routePositionB.getLat());
-    }
-
-    public double getWeight(RoutePosition endPosition) {
-        return 1d / (endPosition.getTimestamp() - getTimestamp());
+    public long getDurationInMillis(RoutePosition endPosition) {
+        return endPosition.getTimestamp() - getTimestamp();
     }
 
     @Override

@@ -23,11 +23,6 @@ public class GraphBuildingService {
         addEdges(routeMetaDataList, weightedGraph);
         addSrcAndDestNodes(routeMetaDataList, nodeCount, weightedGraph);
         return weightedGraph;
-
-/*        Set<Pair<String, String>> srcDest = routeMetaDataList.stream()
-                .map(RouteMetaData::getPositions).filter(Predicate.not(List::isEmpty))
-                .map(positions -> new Pair<>(positions.get(0).toString(), positions.get(positions.size() - 1).toString())).collect(Collectors.toSet());
-        System.out.println(srcDest);*/
     }
 
     private static void addSrcAndDestNodes(List<RouteMetaData> routeMetaDataList, int nodeCount, DefaultDirectedWeightedGraph<Integer, RouteWeightedEdge> weightedGraph) {
@@ -64,14 +59,13 @@ public class GraphBuildingService {
             RoutePosition endPos = routePositions.get(positionNo);
             int startVertex = startPos.getRouteNodeNo();
             int endVertex = endPos.getRouteNodeNo();
-            double weight = startPos.getWeight(endPos);
-
+            double weight;
             RouteWeightedEdge edge = weightedGraph.getEdge(startVertex, endVertex);
             if (Objects.isNull(edge)) {
-                RouteWeightedEdge routeWeightedEdge = weightedGraph.addEdge(startVertex, endVertex);
-                routeWeightedEdge.setPositions(startPos, endPos);
+                RouteWeightedEdge newEdge = weightedGraph.addEdge(startVertex, endVertex);
+                weight = newEdge.computeInitialWeight(startPos, endPos);
             } else {
-                weight += weightedGraph.getEdgeWeight(edge);
+                weight = edge.computeWeight(startPos, endPos);
             }
             weightedGraph.setEdgeWeight(startVertex, endVertex, weight);
         }

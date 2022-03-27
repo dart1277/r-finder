@@ -14,6 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 public class CsvRoutePointDto {
 
+    protected static final int DTO_VARIABLES_CNT = 4;
+
     private double lon;
     private double lat;
     private long timestamp;
@@ -30,6 +32,6 @@ public class CsvRoutePointDto {
     }
 
     public RoutePosition toRoutePosition(double accuracy) {
-        return new RoutePosition(lon, lat, timestamp, accuracy);
+        return new RoutePosition(lon, lat, timestamp, speed, accuracy);
     }
 }

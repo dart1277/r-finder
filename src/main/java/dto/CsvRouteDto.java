@@ -31,7 +31,7 @@ public class CsvRouteDto implements CsvReadable {
 
     public CellProcessor[] getCellProcessors() {
         return new CellProcessor[]{new NotNull(), new ParseLong(), new ParseLong(), new NotNull(), new NotNull(),
-                new ParseLong(), new ParseLong(), new JsonProcessor<>(CsvRoutePointDto::map)};
+                new ParseLong(), new ParseLong(), new JsonProcessor<>(CsvRoutePointDto::map, CsvRoutePointDto.DTO_VARIABLES_CNT)};
     }
 
 }

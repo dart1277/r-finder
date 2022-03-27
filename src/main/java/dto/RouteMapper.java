@@ -29,7 +29,10 @@ public interface RouteMapper {
     }
 
     default List<RouteMetaData> toDomainWithAccuracy(List<CsvRouteDto> csvRouteDto, double positionAccuracy) {
-        csvRouteDto.stream().map(CsvRouteDto::getPoints).flatMap(Collection::stream).forEach(csvRoutePointDto -> csvRoutePointDto.setPositionAccuracy(positionAccuracy));
+        csvRouteDto.stream()
+                .map(CsvRouteDto::getPoints)
+                .flatMap(Collection::stream)
+                .forEach(csvRoutePointDto -> csvRoutePointDto.setPositionAccuracy(positionAccuracy));
         return toDomain(csvRouteDto);
     }
 

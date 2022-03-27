@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 public class JsonProcessor<U> extends CellProcessorAdaptor implements StringCellProcessor {
 
     private final Function<List<Double>, U> mapper;
-
     private final Gson gson = new Gson();
+    private final int maxNestedListSize;
 
 
     @Override
@@ -26,7 +26,10 @@ public class JsonProcessor<U> extends CellProcessorAdaptor implements StringCell
             strValue = strValue.replaceAll("\\]\\s*\\[", "], [");
             List<List<Double>> list = gson.fromJson(strValue, new TypeToken<List<List<Double>>>() {
             }.getType());
-            return (T) list.stream().map(mapper::apply).collect(Collectors.toList()); // List<U> is T
+            return (T) list.stream()
+                    .filter(nestedList -> nestedList.size() == maxNestedListSize)
+                    .map(mapper::apply)
+                    .collect(Collectors.toList()); // List<U> is T
         }
         return null;
     }
